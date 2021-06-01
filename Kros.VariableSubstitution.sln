@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31321.278
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kros.VariableSubstitution", "src\Kros.VariableSubstitution\Kros.VariableSubstitution.csproj", "{8FE7620E-22FD-407E-8C99-C6182F7111D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kros.VariableSubstitution.Tests", "tests\Kros.VariableSubstitution.Tests\Kros.VariableSubstitution.Tests.csproj", "{A015E81E-79DC-44AA-BBE1-560527F994CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FE7620E-22FD-407E-8C99-C6182F7111D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE7620E-22FD-407E-8C99-C6182F7111D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE7620E-22FD-407E-8C99-C6182F7111D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE7620E-22FD-407E-8C99-C6182F7111D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A015E81E-79DC-44AA-BBE1-560527F994CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A015E81E-79DC-44AA-BBE1-560527F994CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A015E81E-79DC-44AA-BBE1-560527F994CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A015E81E-79DC-44AA-BBE1-560527F994CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46B61CCB-E514-4561-B136-044DA6F4D3C4}
+	EndGlobalSection
+EndGlobal
