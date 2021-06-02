@@ -6,13 +6,14 @@ namespace Kros.VariableSubstitution
     /// <summary>
     /// Interface which describe class for variable substitution.
     /// </summary>
-    internal interface IVariableSubstitution
+    internal interface IVariableSubstituter
     {
         /// <summary>
         /// Substitutes the specified variables.
         /// </summary>
         /// <param name="variables">The variables.</param>
-        /// <param name="sourceFile">The source file.</param>
-        Task SubstituteAsync(IVariablesProvider variables, StreamReader sourceFile);
+        /// <param name="source">The source.</param>
+        /// <returns>Modified response.</returns>
+        string Substitute(IVariablesProvider variables, string source);
     }
 }
