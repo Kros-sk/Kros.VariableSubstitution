@@ -92,7 +92,7 @@ namespace Kros.VariableSubstitution
         }
 
         private static IVariablesProvider CreateVariablesProvider(IDictionary<string, string> variables)
-            => variables.Count > 0 ? new VariablesProvider(variables) : new EnvironmentVariablesProvider();
+            => variables?.Count > 0 ? new VariablesProvider(variables) : new EnvironmentVariablesProvider();
 
         private static void ProcessZipFile(
             string jsonTargetFiles,
