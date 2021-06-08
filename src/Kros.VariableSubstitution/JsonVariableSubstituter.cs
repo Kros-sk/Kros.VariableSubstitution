@@ -9,8 +9,7 @@ namespace Kros.VariableSubstitution
     /// <summary>
     /// Substituter which substitute variables in Json.
     /// </summary>
-    /// <seealso cref="IVariableSubstituter" />
-    internal class JsonVariableSubstituter : IVariableSubstituter
+    internal class JsonVariableSubstituter
     {
         private static readonly Func<string, object> _toStringConverter = (value) => value;
         private static Dictionary<JTokenType, Func<string, object>> _converters = InitConverters();
@@ -22,22 +21,32 @@ namespace Kros.VariableSubstitution
         }
 
         /// <inheritdoc />
-        public string Substitute(IVariablesProvider variables, string source)
+        public SubstitutionResult Substitute(IVariablesProvider variables, string source)
         {
-            var json = JObject.Parse(source);
-
-            foreach (var variable in variables.GetVariables())
+            try
             {
-                JValue token = FindToken(json, variable.Key);
-                if (token != null)
-                {
-                    token.Value = GetConverter(variable.Key, token.Type)(variable.Value);
-                    _logger.LogInformation("Substituting value on key '{name}' with ({type}) value: {value}",
-                        variable.Key, token.Type, token.Value);
-                }
-            }
+                bool wasSubstituted = false;
+                var json = JObject.Parse(source);
 
-            return json.ToString();
+                foreach (var variable in variables.GetVariables())
+                {
+                    JValue token = FindToken(json, variable.Key);
+                    if (token != null)
+                    {
+                        wasSubstituted = true;
+                        token.Value = GetConverter(variable.Key, token.Type)(variable.Value);
+                        _logger.LogInformation("|    Substituting value on key '{name}' with ({type}) value: {value}",
+                            variable.Key, token.Type, token.Value);
+                    }
+                }
+
+                return new(wasSubstituted ? json.ToString() : source, wasSubstituted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Substitution failed.");
+                return new(source, false);
+            }
         }
 
         private static JValue FindToken(JObject json, string variableKey)

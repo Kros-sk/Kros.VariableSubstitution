@@ -17,7 +17,7 @@ namespace Kros.VariableSubstitution.Tests
             ILogger logger = Substitute.For<ILogger>();
             IVariablesProvider provider = variables.AsProvider();
 
-            var actual = JToken.Parse((new JsonVariableSubstituter(logger)).Substitute(provider, sourceJson));
+            var actual = JToken.Parse((new JsonVariableSubstituter(logger)).Substitute(provider, sourceJson).Result);
             var expectedJson = JToken.Parse(expected);
 
             actual.Should().BeEquivalentTo(expectedJson);
