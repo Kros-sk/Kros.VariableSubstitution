@@ -30,13 +30,21 @@ namespace Kros.VariableSubstitution
 
                 foreach (var variable in variables.GetVariables())
                 {
-                    JValue token = FindToken(json, variable.Key);
-                    if (token != null)
+                    try
                     {
-                        wasSubstituted = true;
-                        token.Value = GetConverter(variable.Key, token.Type)(variable.Value);
-                        _logger.LogInformation("|    Substituting value on key '{name}' with ({type}) value: {value}",
-                            variable.Key, token.Type, token.Value);
+                        JValue token = FindToken(json, variable.Key);
+                        if (token != null)
+                        {
+                            wasSubstituted = true;
+                            token.Value = GetConverter(variable.Key, token.Type)(variable.Value);
+                            _logger.LogInformation("|    Substituting value on key '{name}' with ({type}) value: {value}",
+                                variable.Key, token.Type, token.Value);
+                        }
+                    }
+                    catch
+                    {
+                        _logger.LogError($"Failed processing variable '{variable.Key}'.");
+                        throw;
                     }
                 }
 
