@@ -35,6 +35,6 @@ varsub -w d:\Projects\artifacts -j **/appsettings.json
 
 This tool processes all ZIP files that match the `--zipFilesOrDirectories` pattern in working directory. Processes all files that match the `--jsonTargetFiles` pattern. By default, it takes variables from environment variables. It tries to find the corresponding property in the JSON object for these variables. If  finds, will replace it.
 
-The `--variables` parameter can be used mainly for testing purposes, with which it is possible to define variables and their values (`--variables var1=value1 var2=value2 ...`)
+The `--variables` parameter can be used mainly for testing purposes, with which it is possible to define variables and their values (`--variables var1=value1 var2=value2 ...`).
 
 > ⚠ It is not possible to add a new property to a JSON object or a new record to a JSON field using this tool. It only allows the replacement of existing properties.
