@@ -21,7 +21,7 @@ namespace Kros.VariableSubstitution
                     new string[] { "--workingDirectory", "-w" },
                     description: "Working directory"),
                 new Option<string>(
-                    new string[] { "--zipFilesOrDirectories", "-p" },
+                    new string[] { "--zipFilesOrDirectories", "-f" },
                     () => "**/*.zip",
                     "Glob pattern to search a list of files or directories"),
                 new Option<string>(
@@ -33,7 +33,7 @@ namespace Kros.VariableSubstitution
                     () => Path.GetTempPath(),
                     description: "Path to temp directory"),
                 new Option<IDictionary<string, string>>(
-                    new string[] { "--variables", "-vars"},
+                    new string[] { "--variables", "-v"},
                     parseArgument: ParseVariables,
                     description: "Variables. (var1=value1 var2=value2)")
             };
