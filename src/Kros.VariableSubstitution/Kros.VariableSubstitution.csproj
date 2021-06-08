@@ -6,7 +6,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>varsub</ToolCommandName>
 
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Authors>KROS a. s.</Authors>
     <Company>KROS a. s.</Company>
     <PackageIcon>icon.png</PackageIcon>

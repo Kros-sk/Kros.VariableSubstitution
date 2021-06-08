@@ -71,6 +71,11 @@ namespace Kros.VariableSubstitution.Tests
                 "{\"Foo\": [{\"bar\": \"value1\"}, {\"bar\": \"value2\"}, {\"bar\": \"value3\"}]}" };
 
             yield return new object[] {
+                "{\"Foo\": [{\"bar\": \"value1\"}]}",
+                new Dictionary<string, string>() { { "foo.1.bar", "value1" } },
+                "{\"Foo\": [{\"bar\": \"value1\"}]}" };
+
+            yield return new object[] {
                 "{\"Foo\": [{\"bar\": \"value1\"}, {\"bar\": \"value2\"}, {\"bar\": \"\"}], \"Bar\": {\"prop1\": 25, \"prop2\":\"value\"}}",
                 new Dictionary<string, string>() {
                     { "foo.0.bar", "new value" },

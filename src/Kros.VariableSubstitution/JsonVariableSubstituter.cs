@@ -88,6 +88,11 @@ namespace Kros.VariableSubstitution
             int dotIndex = variableKey.IndexOf(".");
             int index = int.Parse(dotIndex == -1 ? variableKey : variableKey.Substring(0, dotIndex));
 
+            if (index >= array.Count)
+            {
+                return null;
+            }
+
             JToken token = array[index];
 
             if (token.Type == JTokenType.Object)
