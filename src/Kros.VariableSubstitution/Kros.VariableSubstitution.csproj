@@ -9,6 +9,7 @@
     <Version>1.0.0</Version>
     <Authors>KROS a. s.</Authors>
     <Company>KROS a. s.</Company>
+    <PackageIcon>icon.png</PackageIcon>
     <Description>Kros.VariableSubstitution (varsub) is tool for variable substitution in Json files.</Description>
   </PropertyGroup>
 
@@ -20,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\packageIcon.png" Pack="true" PackagePath="" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
