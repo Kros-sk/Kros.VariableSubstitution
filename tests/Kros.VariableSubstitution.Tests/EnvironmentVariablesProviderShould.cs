@@ -28,11 +28,11 @@ namespace Kros.VariableSubstitution.Tests
                     IDictionary<string, string> variables = provider.GetVariables();
 
                     variables.Should().ContainKey("KrosTestVariable")
-                        .WhichValue.Should().Be("test value");
+                        .WhoseValue.Should().Be("test value");
                     variables.Should().ContainKey("Kros.Test.Variable")
-                        .WhichValue.Should().Be("test value separated by a dots");
+                        .WhoseValue.Should().Be("test value separated by a dots");
                     variables.Should().ContainKey("KROS.TEST.VARIABLE.FOO")
-                        .WhichValue.Should().Be("test value separated by a underscores");
+                        .WhoseValue.Should().Be("test value separated by a underscores");
                 }
             }
             finally
