@@ -11,9 +11,6 @@ using System.Linq;
 
 namespace Kros.VariableSubstitution {
     class Program {
-
-
-
         static int Main(string[] args) {
             var rootCommand = new RootCommand
             {
@@ -37,6 +34,7 @@ namespace Kros.VariableSubstitution {
                     parseArgument: ParseVariables,
                     description: "Variables. (var1=value1 var2=value2)")
             };
+            //koment
 
             rootCommand.Description = "Run variable substitution in Json files.";
 
