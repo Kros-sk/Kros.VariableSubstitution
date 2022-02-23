@@ -9,12 +9,12 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 
-namespace Kros.VariableSubstitution
-{
-    class Program
-    {
-        static int Main(string[] args)
-        {
+namespace Kros.VariableSubstitution {
+    class Program {
+
+
+
+        static int Main(string[] args) {
             var rootCommand = new RootCommand
             {
                 new Option<string>(
@@ -56,8 +56,7 @@ namespace Kros.VariableSubstitution
             string zipFilesOrDirectories,
             string jsonTargetFiles,
             string tempDirectory,
-            IDictionary<string, string> variables)
-        {
+            IDictionary<string, string> variables) {
             PrintLogo();
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
@@ -67,24 +66,20 @@ namespace Kros.VariableSubstitution
             IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, zipFilesOrDirectories);
             IVariablesProvider variablesProvider = CreateVariablesProvider(variables);
 
-            foreach (string file in files)
-            {
+            foreach (string file in files) {
                 string fullPath = Path.Combine(workingDirectory, file);
                 logger.LogInformation(" ──────────────────────────────────────────────");
                 logger.LogInformation($"├─ {file}");
 
-                if (Directory.Exists(fullPath))
-                {
+                if (Directory.Exists(fullPath)) {
                     ProcessDirectory(fullPath, jsonTargetFiles, variablesProvider, logger);
                 }
                 else if (Path.HasExtension(file)
                     && Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                    && File.Exists(fullPath))
-                {
+                    && File.Exists(fullPath)) {
                     ProcessZipFile(jsonTargetFiles, tempDirectory, variablesProvider, file, fullPath, logger);
                 }
-                else
-                {
+                else {
                     throw new InvalidOperationException(
                         $"Path '{fullPath}' was intended for processing, but it is neither a Zip file nor a directory.");
                 }
@@ -100,20 +95,16 @@ namespace Kros.VariableSubstitution
             IVariablesProvider variablesProvider,
             string file,
             string fullPath,
-            ILogger logger)
-        {
+            ILogger logger) {
             string dest = Path.Combine(tempDirectory, Path.GetFileNameWithoutExtension(file));
-            try
-            {
+            try {
                 ZipFile.ExtractToDirectory(fullPath, dest, true);
-                if (ProcessDirectory(dest, jsonTargetFiles, variablesProvider, logger))
-                {
+                if (ProcessDirectory(dest, jsonTargetFiles, variablesProvider, logger)) {
                     File.Delete(fullPath);
                     ZipFile.CreateFromDirectory(dest, fullPath);
                 }
             }
-            finally
-            {
+            finally {
                 Directory.Delete(dest, true);
             }
         }
@@ -122,19 +113,16 @@ namespace Kros.VariableSubstitution
             string directory,
             string jsonTargetFiles,
             IVariablesProvider variables,
-            ILogger logger)
-        {
+            ILogger logger) {
             IEnumerable<string> files = Glob.FilesAndDirectories(directory, jsonTargetFiles);
             JsonVariableSubstituter substituter = new(logger);
             bool wasSubstituted = false;
 
-            foreach (string file in files)
-            {
+            foreach (string file in files) {
                 logger.LogInformation($"├─── {file}");
                 string fullPath = Path.Combine(directory, file);
                 SubstitutionResult result = substituter.Substitute(variables, File.ReadAllText(fullPath));
-                if (result.WasSubstituted)
-                {
+                if (result.WasSubstituted) {
                     wasSubstituted = true;
                     File.WriteAllText(fullPath, result.Result);
                 }
@@ -143,10 +131,8 @@ namespace Kros.VariableSubstitution
             return wasSubstituted;
         }
 
-        private static ILoggerFactory CreateLoggerFactory() => LoggerFactory.Create(builder =>
-        {
-            builder.AddSimpleConsole(options =>
-            {
+        private static ILoggerFactory CreateLoggerFactory() => LoggerFactory.Create(builder => {
+            builder.AddSimpleConsole(options => {
                 options.IncludeScopes = true;
                 options.SingleLine = true;
                 options.ColorBehavior = Microsoft.Extensions.Logging.Console.LoggerColorBehavior.Enabled;
@@ -154,8 +140,7 @@ namespace Kros.VariableSubstitution
             }).SetMinimumLevel(LogLevel.Information);
         });
 
-        private static void PrintLogo()
-        {
+        private static void PrintLogo() {
             Console.WriteLine(@"
   _  _______   ____   _____                 
  | |/ /  __ \ / __ \ / ____|                
