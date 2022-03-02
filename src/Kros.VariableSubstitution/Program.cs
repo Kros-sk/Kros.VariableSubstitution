@@ -79,7 +79,6 @@ namespace Kros.VariableSubstitution
             string tempDirectory,
             IDictionary<string, string> variables)
         {
-
             if (string.IsNullOrWhiteSpace(workingDirectory))
             {
                 Environment.Exit(0);
