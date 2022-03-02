@@ -18,6 +18,8 @@
     <PackageReleaseNotes>https://github.com/Kros-sk/Kros.VariableSubstitution/releases</PackageReleaseNotes>
     <PackageTags>dotnet tool; variable subtitution;json</PackageTags>
     <RepositoryUrl>https://github.com/Kros-sk/Kros.VariableSubstitution</RepositoryUrl>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>C:\Users\caban\source\repos\Kros.VariableSubstitution\src\Kros.VariableSubstitution\bin\Debug\net6\Kros.VariableSubstitution.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +32,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
   </ItemGroup>
 </Project>
