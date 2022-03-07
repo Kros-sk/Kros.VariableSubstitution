@@ -18,8 +18,6 @@
     <PackageReleaseNotes>https://github.com/Kros-sk/Kros.VariableSubstitution/releases</PackageReleaseNotes>
     <PackageTags>dotnet tool; variable subtitution;json</PackageTags>
     <RepositoryUrl>https://github.com/Kros-sk/Kros.VariableSubstitution</RepositoryUrl>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <DocumentationFile>C:\Users\caban\source\repos\Kros.VariableSubstitution\src\Kros.VariableSubstitution\bin\Debug\net6\Kros.VariableSubstitution.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
