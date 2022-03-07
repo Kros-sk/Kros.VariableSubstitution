@@ -93,7 +93,6 @@ namespace Kros.VariableSubstitution
             string tempDirectory,
             IDictionary<string, string> variables)
         {
-
             PrintLogo();
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
