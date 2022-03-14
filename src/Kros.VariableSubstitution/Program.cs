@@ -23,9 +23,9 @@ namespace Kros.VariableSubstitution
                 aliases: new string[] { "-w", "--workingDirectory" },
                 description: "Working directory - required");
 
-            var zipFilesOrDirectories = new Option<string>(
+            var zipFilesOrDirectories = new Option<IEnumerable<string>>(
                 new string[] { "--zipFilesOrDirectories", "-f" },
-                getDefaultValue: () => "**/*.zip",
+                getDefaultValue: () => new List<string> { "**/*.zip" },
                 "Glob pattern to search a list of files or directories");
 
             var jsonTargetFiles = new Option<string>(
@@ -52,7 +52,7 @@ namespace Kros.VariableSubstitution
                 variables
             };
 
-            rootCommand.SetHandler<string, string, string, string, IDictionary<string, string>>(
+            rootCommand.SetHandler<string, IEnumerable<string>, string, string, IDictionary<string, string>>(
                 (wd, zip, json, temp, var) => RunCommand(wd, zip, json, temp, var),
                 workingDirectory,
                 zipFilesOrDirectories,
@@ -106,7 +106,7 @@ namespace Kros.VariableSubstitution
 
         private static void RunCommand(
             string workingDirectory,
-            string zipFilesOrDirectories,
+            IEnumerable<string> zipFilesOrDirectories,
             string jsonTargetFiles,
             string tempDirectory,
             IDictionary<string, string> variables)
@@ -114,30 +114,32 @@ namespace Kros.VariableSubstitution
             PrintLogo();
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
-
-            IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, zipFilesOrDirectories);
-            IVariablesProvider variablesProvider = CreateVariablesProvider(variables);
-
-            foreach (string file in files)
+            foreach (string glob in zipFilesOrDirectories)
             {
-                string fullPath = Path.Combine(workingDirectory, file);
-                _logger.LogInformation(" ──────────────────────────────────────────────");
-                _logger.LogInformation($"├─ {file}");
+                IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, glob);
+                IVariablesProvider variablesProvider = CreateVariablesProvider(variables);
 
-                if (Directory.Exists(fullPath))
+                foreach (string file in files)
                 {
-                    ProcessDirectory(fullPath, jsonTargetFiles, variablesProvider);
-                }
-                else if (Path.HasExtension(file)
-                    && Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase)
-                    && File.Exists(fullPath))
-                {
-                    ProcessZipFile(jsonTargetFiles, tempDirectory, variablesProvider, file, fullPath);
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        $"Path '{fullPath}' was intended for processing, but it is neither a Zip file nor a directory.");
+                    string fullPath = Path.Combine(workingDirectory, file);
+                    _logger.LogInformation(" ──────────────────────────────────────────────");
+                    _logger.LogInformation($"├─ {file}");
+
+                    if (Directory.Exists(fullPath))
+                    {
+                        ProcessDirectory(fullPath, jsonTargetFiles, variablesProvider);
+                    }
+                    else if (Path.HasExtension(file)
+                        && Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase)
+                        && File.Exists(fullPath))
+                    {
+                        ProcessZipFile(jsonTargetFiles, tempDirectory, variablesProvider, file, fullPath);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            $"Path '{fullPath}' was intended for processing, but it is neither a Zip file nor a directory.");
+                    }
                 }
             }
         }
