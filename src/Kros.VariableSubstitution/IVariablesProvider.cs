@@ -3,7 +3,7 @@
 namespace Kros.VariableSubstitution
 {
     /// <summary>
-    /// Provaider for obtaining variables.
+    /// Provider for obtaining variables.
     /// </summary>
     internal interface IVariablesProvider
     {
