@@ -61,29 +61,47 @@ namespace Kros.VariableSubstitution
                 variables);
 
             rootCommand.Description = "Run variable substitution in Json files.";
-
+            var result = ExitCodes.Ok;
             //Check, if working directory was specified
             if (args.Length == 0 || (!args.Contains("-w") && !args.Contains("--workingDirectory")))
             {
                 rootCommand.Invoke("--help");
-                Environment.Exit(ExitCodes.Ok);
+                result = ExitCodes.MissingWorkingDirectory;
             }
-            return rootCommand.InvokeAsync(args).Result;
+            else
+            {
+                try
+                {
+                    result = rootCommand.InvokeAsync(args).Result;
+                }
+                catch (AggregateException ex) when (ex.InnerException is InvalidVariableFormatException)
+                {
+                    _logger.LogError(ex.InnerException.Message, ex.InnerException);
+                    result = ExitCodes.WrongVariablesFormat;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex);
+                    result = ExitCodes.UnknownError;
+                }
+            }
+            _loggerFactory.Dispose();
+            return result;
         }
 
         private static IDictionary<string, string> ParseVariables(ArgumentResult arguments)
         {
-            var splitVar = arguments.Tokens.Select(t => t.Value.Split('='));
-            foreach (var item in splitVar)
+            var result = new Dictionary<string, string>();
+            foreach (var item in arguments.Tokens)
             {
-                if (item.Length <= 1)
+                var splitVar = item.Value.Split('=');
+                if (splitVar.Length <= 1)
                 {
-                    _logger.LogError("Incorrect variable format.");
-                    _loggerFactory.Dispose();
-                    Environment.Exit(ExitCodes.WrongVariablesFormat);
+                    throw new InvalidVariableFormatException(item.Value);
                 }
+                result.Add(splitVar[0], splitVar[1]);
             }
-            return splitVar.ToDictionary(p => p[0], p => p[1]);
+            return result;
         }
 
         private static void RunCommand(
@@ -96,6 +114,8 @@ namespace Kros.VariableSubstitution
             PrintLogo();
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
+
+
 
             IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, zipFilesOrDirectories);
             IVariablesProvider variablesProvider = CreateVariablesProvider(variables);
