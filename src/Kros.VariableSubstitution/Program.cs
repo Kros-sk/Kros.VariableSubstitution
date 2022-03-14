@@ -115,8 +115,6 @@ namespace Kros.VariableSubstitution
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
 
-
-
             IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, zipFilesOrDirectories);
             IVariablesProvider variablesProvider = CreateVariablesProvider(variables);
 
