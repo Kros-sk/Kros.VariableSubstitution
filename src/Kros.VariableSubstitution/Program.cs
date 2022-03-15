@@ -10,11 +10,11 @@ using System.Linq;
 
 namespace Kros.VariableSubstitution
 {
-    class Program
+    internal class Program
     {
         private static ILoggerFactory _loggerFactory;
         private static ILogger _logger;
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             _loggerFactory = CreateLoggerFactory();
             _logger = _loggerFactory.CreateLogger(string.Empty);
