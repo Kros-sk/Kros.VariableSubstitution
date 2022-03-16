@@ -1,28 +1,23 @@
-﻿using System;
-using System.IO;
+﻿using FluentAssertions;
+using System.Collections.Generic;
 using Xunit;
+
 namespace Kros.VariableSubstitution.Tests
 {
     public class CommandLineParserShould
     {
-        [Fact]
-        public void MissingParametersOutput()
+        [Theory]
+        [MemberData(nameof(GetArgs))]
+        public void ConsoleOutput(string[] args, int expectedReturn)
         {
-            var stringWriter = new StringWriter();
-            Console.SetOut(stringWriter);
-            Program.Main(new string[] { });
-            var output = stringWriter.ToString();
-            Assert.Contains("Run variable substitution in Json files.", output);
+            var actual = Program.Main(args);
+            actual.Should().Be(expectedReturn);
         }
 
-        [Fact]
-        public void WrongVariableFormatOutput()
+        public static IEnumerable<object[]> GetArgs()
         {
-            var stringWriter = new StringWriter();
-            Console.SetOut(stringWriter);
-            Program.Main(new string[] { "-w", "placeholder", "-v", "incorrectVariable" });
-            var output = stringWriter.ToString();
-            Assert.Contains("Error while parsing", output);
+            yield return new object[] { new string[] { }, ExitCodes.MissingWorkingDirectory };
+            yield return new object[] { new string[] { "-w", "placeholder", "-v", "incorrectVariable" }, ExitCodes.WrongVariablesFormat };
         }
     }
 }
