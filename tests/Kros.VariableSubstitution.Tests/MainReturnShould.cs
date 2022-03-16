@@ -4,11 +4,11 @@ using Xunit;
 
 namespace Kros.VariableSubstitution.Tests
 {
-    public class CommandLineParserShould
+    public class MainReturnShould
     {
         [Theory]
         [MemberData(nameof(GetArgs))]
-        public void ConsoleOutput(string[] args, int expectedReturn)
+        public void TestDifferentArgs(string[] args, int expectedReturn)
         {
             var actual = Program.Main(args);
             actual.Should().Be(expectedReturn);
