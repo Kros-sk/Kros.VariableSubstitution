@@ -60,7 +60,6 @@ namespace Kros.VariableSubstitution
 
         /// <summary>
         /// Extracts the archive, substitutes, and builds a new archive from the extracted files.
-        /// Memory stays flat regardless of package size, at the cost of writing the whole package to disk twice.
         /// </summary>
         private bool ProcessZipByRebuild(string zipPath, IVariablesProvider variables)
         {
@@ -87,63 +86,78 @@ namespace Kros.VariableSubstitution
         }
 
         /// <summary>
-        /// Rewrites only the Json entries of the archive. Entries that are not substituted keep their
-        /// original compressed bytes, and an archive where nothing matched is not rewritten at all.
-        /// Peak memory grows with the size of the package, because the archive is buffered to be rewritten.
+        /// Rewrites the substituted Json entries inside the existing archive. The archive is opened for
+        /// writing only when there is something to write.
         /// </summary>
         private bool ProcessZipInPlace(string zipPath, IVariablesProvider variables)
         {
-            JsonVariableSubstituter substituter = new(_logger);
-            Dictionary<string, string> pending = new();
-
-            using (ZipArchive archive = ZipFile.OpenRead(zipPath))
-            {
-                foreach (ZipArchiveEntry entry in archive.Entries)
-                {
-                    if (!_targetGlob.IsMatch(entry.FullName))
-                    {
-                        continue;
-                    }
-
-                    _logger.LogInformation($"├─── {entry.FullName}");
-
-                    string source;
-                    using (StreamReader reader = new(entry.Open()))
-                    {
-                        source = reader.ReadToEnd();
-                    }
-
-                    SubstitutionResult result = substituter.Substitute(variables, source);
-                    if (result.WasSubstituted)
-                    {
-                        pending[entry.FullName] = result.Result;
-                    }
-                }
-            }
-
-            if (pending.Count == 0)
+            Dictionary<string, string> substituted = ReadSubstitutedEntries(zipPath, variables);
+            if (substituted.Count == 0)
             {
                 return false;
             }
 
-            using (ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update))
-            {
-                foreach (KeyValuePair<string, string> item in pending)
-                {
-                    ZipArchiveEntry entry = archive.GetEntry(item.Key);
-                    if (entry is null)
-                    {
-                        continue;
-                    }
+            WriteEntries(zipPath, substituted);
+            return true;
+        }
 
-                    using Stream stream = entry.Open();
-                    stream.SetLength(0);
-                    using StreamWriter writer = new(stream);
-                    writer.Write(item.Value);
+        /// <summary>
+        /// Reads the Json entries that match the target pattern and substitutes them in memory.
+        /// </summary>
+        /// <returns>The new content of every entry that changed, keyed by entry name.</returns>
+        private Dictionary<string, string> ReadSubstitutedEntries(string zipPath, IVariablesProvider variables)
+        {
+            JsonVariableSubstituter substituter = new(_logger);
+            Dictionary<string, string> substituted = new();
+
+            using ZipArchive archive = ZipFile.OpenRead(zipPath);
+
+            foreach (ZipArchiveEntry entry in archive.Entries)
+            {
+                if (!_targetGlob.IsMatch(entry.FullName))
+                {
+                    continue;
+                }
+
+                _logger.LogInformation($"├─── {entry.FullName}");
+
+                SubstitutionResult result = substituter.Substitute(variables, ReadEntry(entry));
+                if (result.WasSubstituted)
+                {
+                    substituted[entry.FullName] = result.Result;
                 }
             }
 
-            return true;
+            return substituted;
+        }
+
+        private static void WriteEntries(string zipPath, Dictionary<string, string> substituted)
+        {
+            using ZipArchive archive = ZipFile.Open(zipPath, ZipArchiveMode.Update);
+
+            foreach (KeyValuePair<string, string> item in substituted)
+            {
+                ZipArchiveEntry entry = archive.GetEntry(item.Key);
+                if (entry is not null)
+                {
+                    WriteEntry(entry, item.Value);
+                }
+            }
+        }
+
+        private static string ReadEntry(ZipArchiveEntry entry)
+        {
+            using StreamReader reader = new(entry.Open());
+            return reader.ReadToEnd();
+        }
+
+        private static void WriteEntry(ZipArchiveEntry entry, string content)
+        {
+            using Stream stream = entry.Open();
+            stream.SetLength(0);
+
+            using StreamWriter writer = new(stream);
+            writer.Write(content);
         }
     }
 }
