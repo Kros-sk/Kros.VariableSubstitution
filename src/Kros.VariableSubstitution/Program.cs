@@ -36,12 +36,18 @@ namespace Kros.VariableSubstitution
             var tempDirectory = new Option<string>(
                 new string[] { "--tempDirectory", "-t" },
                 getDefaultValue: () => Path.GetTempPath(),
-                description: "Path to temp directory");
+                description: "Path to temp directory. The tool does not use it with --fast.");
 
             var variables = new Option<IDictionary<string, string>>(
                 new string[] { "--variables", "-v" },
                 parseArgument: ParseVariables,
                 description: "Variables. (var1=value1 var2=value2). Used for testing.");
+
+            var fast = new Option<bool>(
+                new string[] { "--fast" },
+                getDefaultValue: () => false,
+                description: "Substitute directly in the Zip package. The tool does not extract the package. "
+                    + "Peak memory grows with the size of the package.");
 
             var rootCommand = new RootCommand
             {
@@ -49,16 +55,18 @@ namespace Kros.VariableSubstitution
                 zipFilesOrDirectories,
                 jsonTargetFiles,
                 tempDirectory,
-                variables
+                variables,
+                fast
             };
 
-            rootCommand.SetHandler<string, IEnumerable<string>, string, string, IDictionary<string, string>>(
-                (wd, zip, json, temp, var) => RunCommand(wd, zip, json, temp, var),
+            rootCommand.SetHandler<string, IEnumerable<string>, string, string, IDictionary<string, string>, bool>(
+                (wd, zip, json, temp, var, useFast) => RunCommand(wd, zip, json, temp, var, useFast),
                 workingDirectory,
                 zipFilesOrDirectories,
                 jsonTargetFiles,
                 tempDirectory,
-                variables);
+                variables,
+                fast);
 
             rootCommand.Description = "Run variable substitution in Json files.";
             var result = ExitCodes.Ok;
@@ -109,11 +117,14 @@ namespace Kros.VariableSubstitution
             IEnumerable<string> zipFilesOrDirectories,
             string jsonTargetFiles,
             string tempDirectory,
-            IDictionary<string, string> variables)
+            IDictionary<string, string> variables,
+            bool fast)
         {
             PrintLogo();
 
             tempDirectory = Path.Combine(tempDirectory, Path.GetRandomFileName());
+            PackageProcessor processor = new(_logger, jsonTargetFiles, tempDirectory, fast);
+
             foreach (string glob in zipFilesOrDirectories)
             {
                 IEnumerable<string> files = Glob.FilesAndDirectories(workingDirectory, glob);
@@ -127,13 +138,13 @@ namespace Kros.VariableSubstitution
 
                     if (Directory.Exists(fullPath))
                     {
-                        ProcessDirectory(fullPath, jsonTargetFiles, variablesProvider);
+                        processor.ProcessDirectory(fullPath, variablesProvider);
                     }
                     else if (Path.HasExtension(file)
                         && Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase)
                         && File.Exists(fullPath))
                     {
-                        ProcessZipFile(jsonTargetFiles, tempDirectory, variablesProvider, file, fullPath);
+                        processor.ProcessZip(fullPath, variablesProvider);
                     }
                     else
                     {
@@ -146,53 +157,6 @@ namespace Kros.VariableSubstitution
 
         private static IVariablesProvider CreateVariablesProvider(IDictionary<string, string> variables)
             => variables?.Count > 0 ? new VariablesProvider(variables) : new EnvironmentVariablesProvider();
-
-        private static void ProcessZipFile(
-            string jsonTargetFiles,
-            string tempDirectory,
-            IVariablesProvider variablesProvider,
-            string file,
-            string fullPath)
-        {
-            string dest = Path.Combine(tempDirectory, Path.GetFileNameWithoutExtension(file));
-            try
-            {
-                ZipFile.ExtractToDirectory(fullPath, dest, true);
-                if (ProcessDirectory(dest, jsonTargetFiles, variablesProvider))
-                {
-                    File.Delete(fullPath);
-                    ZipFile.CreateFromDirectory(dest, fullPath);
-                }
-            }
-            finally
-            {
-                Directory.Delete(dest, true);
-            }
-        }
-
-        private static bool ProcessDirectory(
-            string directory,
-            string jsonTargetFiles,
-            IVariablesProvider variables)
-        {
-            IEnumerable<string> files = Glob.FilesAndDirectories(directory, jsonTargetFiles);
-            JsonVariableSubstituter substituter = new(_logger);
-            bool wasSubstituted = false;
-
-            foreach (string file in files)
-            {
-                _logger.LogInformation($"├─── {file}");
-                string fullPath = Path.Combine(directory, file);
-                SubstitutionResult result = substituter.Substitute(variables, File.ReadAllText(fullPath));
-                if (result.WasSubstituted)
-                {
-                    wasSubstituted = true;
-                    File.WriteAllText(fullPath, result.Result);
-                }
-            }
-
-            return wasSubstituted;
-        }
 
         private static ILoggerFactory CreateLoggerFactory() => LoggerFactory.Create(builder =>
         {
