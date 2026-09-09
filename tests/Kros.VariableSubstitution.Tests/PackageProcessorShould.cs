@@ -174,6 +174,19 @@ namespace Kros.VariableSubstitution.Tests
             ReadJson(zip, "appsettings.json")["AppConfig"]["UseFeatureFlags"].Value<bool>().Should().BeTrue();
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ReportTheRealErrorForAnUnreadableArchive(bool fast)
+        {
+            string zip = Path.Combine(_root, "corrupt.zip");
+            File.WriteAllBytes(zip, new byte[] { 0x50, 0x4B, 0x03, 0x04, 0xFF, 0xFF, 0xFF, 0xFF });
+
+            Action act = () => CreateProcessor(fast).ProcessZip(zip, Variables(("APPCONFIG.ENDPOINT", "x")));
+
+            act.Should().Throw<InvalidDataException>();
+        }
+
         [Fact]
         public void ProduceTheSameContentWithFastAsWithoutIt()
         {
